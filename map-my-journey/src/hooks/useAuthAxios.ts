@@ -7,7 +7,7 @@ export const useAuthAxios = () => {
 
     const axiosInstance = useMemo(() => {
         const instance = axios.create({
-            baseURL: "http://localhost:5026/api",
+            baseURL: process.env.REACT_APP_API_BASE_URL ?? "http://localhost:5026/api",
         });
 
         instance.interceptors.request.use(async (config) => {
