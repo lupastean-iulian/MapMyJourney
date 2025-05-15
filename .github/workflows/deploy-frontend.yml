@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'  # Or your version
+          node-version: '20'  # Or your version
 
       - name: Install dependencies
         working-directory: ./map-my-journey
