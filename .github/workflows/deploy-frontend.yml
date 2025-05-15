@@ -3,7 +3,7 @@ name: Deploy React Frontend to Azure Static Web Apps
 on:
   push:
     branches:
-      - main  # Adjust if your main branch has a different name
+      - main
 
 jobs:
   build_and_deploy:
@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'  # Ensure this matches your project needs
+          node-version: '20'
 
       - name: Install dependencies
         working-directory: ./map-my-journey
@@ -33,6 +33,5 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "map-my-journey"              # Root of your React app
-          output_location: "map-my-journey/build"     # Output folder after build
-          skip_app_build: true                        # <-- Prevents Oryx from trying to build
+          skip_app_build: true
+          app_artifact_location: "map-my-journey/build"
