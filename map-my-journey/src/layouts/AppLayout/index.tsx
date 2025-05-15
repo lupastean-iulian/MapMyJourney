@@ -1,5 +1,5 @@
 import { useAuth0 } from "@auth0/auth0-react";
-import { Box, Button } from "@mui/material";
+import { Box } from "@mui/material";
 import { LogoutButton } from "../../modules/logout/components/LogoutButton/LogoutButton";
 import { LoginButton } from "../../modules/login/components/LoginButton/LoginButton";
 type LayoutProps = {
