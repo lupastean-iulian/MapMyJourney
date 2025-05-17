@@ -8,7 +8,6 @@ export const WelcomePage: React.FC<React.PropsWithChildren> = () => {
     const handleClick = async () => {
 
         const response = await axiosAuth.get('/Profile')
-        console.log("Authorized response:", response.data);
     }
     return (
         <Box>

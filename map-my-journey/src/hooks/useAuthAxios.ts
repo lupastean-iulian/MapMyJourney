@@ -12,7 +12,6 @@ export const useAuthAxios = () => {
 
         instance.interceptors.request.use(async (config) => {
             const token = await getAccessTokenSilently();
-            console.log("Token:", token);
             config.headers.Authorization = `Bearer ${token}`;
             return config;
         });

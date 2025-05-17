@@ -4,7 +4,6 @@ import { Box, CircularProgress } from "@mui/material";
 import { Route, Routes } from "react-router-dom";
 import ForgotPassword from "../modules/forgot-password/pages/ForgotPassword";
 import { LoginPage } from "../modules/login/pages/Login";
-import { RegistrationPage } from "../modules/registration/pages/Registration/RegistrationPage";
 import { WelcomePage } from "../modules/welcome/pages/Welcome";
 import { useAuth0 } from "@auth0/auth0-react";
 
@@ -21,7 +20,6 @@ function LoggedOutRoutes() {
         <Routes>
             <Route index element={<AppShell> <WelcomePage /> </AppShell>} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegistrationPage />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
         </Routes>
     )
