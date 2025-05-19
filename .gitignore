@@ -149,8 +149,14 @@ coverage*.json
 coverage*.xml
 coverage*.info
 
-# env files
+
+# misc
+.DS_Store
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Visual Studio code coverage results
 *.coverage
