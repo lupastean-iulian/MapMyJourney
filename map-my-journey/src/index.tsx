@@ -5,6 +5,8 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import { Auth0Provider } from '@auth0/auth0-react';
+import { ThemeProvider } from '@mui/material/styles';
+import theme from './theme';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -13,17 +15,19 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <Auth0Provider
-      domain={process.env.REACT_APP_AUTH0_DOMAIN as string}
-      clientId={process.env.REACT_APP_AUTH0_CLIENT_ID as string}
-      authorizationParams={{
-        redirect_uri: window.location.origin,
-        audience: process.env.REACT_APP_AUTH0_AUDIENCE as string,
-      }}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </Auth0Provider>
+    <ThemeProvider theme={theme}>
+      <Auth0Provider
+        domain={process.env.REACT_APP_AUTH0_DOMAIN as string}
+        clientId={process.env.REACT_APP_AUTH0_CLIENT_ID as string}
+        authorizationParams={{
+          redirect_uri: window.location.origin,
+          audience: process.env.REACT_APP_AUTH0_AUDIENCE as string,
+        }}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </Auth0Provider>
+    </ThemeProvider>
   </React.StrictMode>
 );
 

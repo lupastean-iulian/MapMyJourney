@@ -2,10 +2,10 @@ import { Suspense } from "react";
 import { AppLayout } from "../layouts/AppLayout";
 import { Box, CircularProgress } from "@mui/material";
 import { Route, Routes } from "react-router-dom";
-import ForgotPassword from "../modules/forgot-password/pages/ForgotPassword";
-import { LoginPage } from "../modules/login/pages/Login";
 import { WelcomePage } from "../modules/welcome/pages/Welcome";
 import { useAuth0 } from "@auth0/auth0-react";
+import { CreateItinerary } from "@app/modules/Itinerary/pages/Create/CreateItinerary";
+import { ViewAllItineraries } from "@app/modules/Itinerary/pages/ViewAll/ViewAllItineraries";
 
 export const AppRoutes = () => {
     const { isAuthenticated } = useAuth0();
@@ -19,8 +19,6 @@ function LoggedOutRoutes() {
     return (
         <Routes>
             <Route index element={<AppShell> <WelcomePage /> </AppShell>} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
         </Routes>
     )
 }
@@ -29,6 +27,9 @@ function LoggedInRoutes() {
     return (
         <Routes>
             <Route index element={<AppShell> <WelcomePage /> </AppShell>} />
+            <Route path="/new" element={<AppShell> <CreateItinerary /> </AppShell>} />
+            <Route path="/view-all" element={<AppShell> <ViewAllItineraries /> </AppShell>} />
+
         </Routes >
     )
 }
