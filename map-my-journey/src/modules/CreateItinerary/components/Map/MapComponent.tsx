@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useCreateItineraryContext } from '../../context/useCreateItineraryContext';
 
 declare global {
     interface Window {
@@ -68,18 +69,58 @@ function getNearbyPlaceId(map: any, lat: number, lng: number, radius = 50): Prom
 export const MapComponent: React.FC = () => {
     const mapRef = useRef<HTMLDivElement | null>(null);
     const mapInstance = useRef<any>(null);
+    const { selectedCountries, selectedCities } = useCreateItineraryContext();
+
+    const fitMapToPoints = (points: Array<{ lat: number; lng: number }>, padding = 80, zoomIfSingle = 6) => {
+        if (!mapInstance.current || !window.google || points.length === 0) return;
+
+        if (points.length === 1) {
+            mapInstance.current.setCenter(points[0]);
+            mapInstance.current.setZoom(zoomIfSingle);
+        } else {
+            const bounds = new window.google.maps.LatLngBounds();
+            points.forEach(({ lat, lng }) => bounds.extend(new window.google.maps.LatLng(lat, lng)));
+            mapInstance.current.fitBounds(bounds, padding);
+        }
+    };
+
+    useEffect(() => {
+        if (!window.google || !mapInstance.current) return;
+
+        // Prioritize cities if available
+        const cityPoints =
+            selectedCities?.map(c => (c.lat && c.lon ? { lat: c.lat, lng: c.lon } : null)).filter(Boolean) || [];
+        if (cityPoints.length > 0) {
+            fitMapToPoints(cityPoints as { lat: number; lng: number }[], 60, 10);
+            return;
+        }
+
+        // Fall back to countries
+        const countryPoints =
+            selectedCountries?.map(c =>
+                Array.isArray(c.latlng) && c.latlng.length === 2
+                    ? { lat: c.latlng[0], lng: c.latlng[1] }
+                    : null
+            ).filter(Boolean) || [];
+
+        if (countryPoints.length > 0) {
+            fitMapToPoints(countryPoints as { lat: number; lng: number }[], 100, 5);
+        }
+    }, [selectedCountries, selectedCities]);
 
     useEffect(() => {
         const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
         if (!mapRef.current || !apiKey) return;
+
         loadGoogleMapsScript(apiKey, () => {
             if (!window.google || !mapRef.current) return;
+
             if (!mapInstance.current) {
                 mapInstance.current = new window.google.maps.Map(mapRef.current, {
                     center: { lat: 40.7128, lng: -74.006 },
-                    zoom: 12,
+                    zoom: 4,
                 });
-                // Add click listener to log all details for the clicked location
+
                 window.google.maps.event.addListener(mapInstance.current, 'click', async (e: any) => {
                     const lat = e.latLng.lat();
                     const lng = e.latLng.lng();
@@ -97,12 +138,9 @@ export const MapComponent: React.FC = () => {
                 });
             }
         });
-        // No script removal to avoid double loading
     }, []);
 
     return <div ref={mapRef} style={{ width: '100%', height: '500px' }} />;
 };
 
-// Export helper functions for use elsewhere
 export { getPlaceDetails, getNearbyPlaceId };
-

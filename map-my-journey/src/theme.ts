@@ -10,6 +10,9 @@ declare module '@mui/material/styles' {
     }
 }
 
+const HEADER_HEIGHT = '7vh';
+const FOOTER_HEIGHT = '6vh';
+
 const theme = createTheme({
     palette: {
         navbar: {
@@ -17,6 +20,25 @@ const theme = createTheme({
             contrastText: '#fff',
         },
     },
+    components: {
+        MuiAppBar: {
+            styleOverrides: {
+                root: {
+                    minHeight: HEADER_HEIGHT,
+                    height: HEADER_HEIGHT,
+                },
+            },
+        },
+        MuiToolbar: {
+            styleOverrides: {
+                root: {
+                    minHeight: HEADER_HEIGHT,
+                    height: HEADER_HEIGHT,
+                },
+            },
+        },
+    },
 });
 
+export { HEADER_HEIGHT, FOOTER_HEIGHT };
 export default theme;

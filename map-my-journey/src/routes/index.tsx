@@ -4,8 +4,8 @@ import { Box, CircularProgress } from "@mui/material";
 import { Route, Routes } from "react-router-dom";
 import { WelcomePage } from "../modules/welcome/pages/Welcome";
 import { useAuth0 } from "@auth0/auth0-react";
-import { CreateItinerary } from "@app/modules/Itinerary/pages/Create/CreateItinerary";
-import { ViewAllItineraries } from "@app/modules/Itinerary/pages/ViewAll/ViewAllItineraries";
+import { CreateItinerary } from "@app/modules/CreateItinerary/pages/CreateItinerary";
+import { ViewAllItineraries } from "@app/modules/ViewAllItineraries/pages/ViewAllItineraries";
 
 export const AppRoutes = () => {
     const { isAuthenticated } = useAuth0();
