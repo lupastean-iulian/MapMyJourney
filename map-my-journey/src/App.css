@@ -32,7 +32,14 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
+}
+
+.gm-style-iw button {
+  transform: scale(0.8);
+  top: 4px !important;
+  right: 4px !important;
 }

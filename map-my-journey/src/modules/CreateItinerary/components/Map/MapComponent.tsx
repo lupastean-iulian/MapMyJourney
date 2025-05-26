@@ -1,146 +1,135 @@
 import React, { useEffect, useRef } from 'react';
 import { useCreateItineraryContext } from '../../context/useCreateItineraryContext';
-
-declare global {
-    interface Window {
-        google: any;
-    }
-}
-
-function loadGoogleMapsScript(apiKey: string, callback: () => void) {
-    if (window.google && window.google.maps) {
-        callback();
-        return;
-    }
-    const existingScript = document.getElementById('google-maps-script');
-    if (existingScript) {
-        existingScript.addEventListener('load', callback);
-        return;
-    }
-    const script = document.createElement('script');
-    script.id = 'google-maps-script';
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-    script.async = true;
-    script.onload = callback;
-    document.body.appendChild(script);
-}
-
-function getPlaceDetails(map: any, placeId: string, fields?: string[]) {
-    return new Promise<any>((resolve, reject) => {
-        const service = new window.google.maps.places.PlacesService(map);
-        service.getDetails(
-            {
-                placeId,
-                fields: fields || [
-                    'name', 'formatted_address', 'formatted_phone_number', 'website',
-                    'photos', 'reviews', 'price_level', 'rating', 'opening_hours', 'geometry'
-                ]
-            },
-            (place: any, status: string) => {
-                if (status === 'OK' && place) {
-                    resolve(place);
-                } else {
-                    reject(status);
-                }
-            }
-        );
-    });
-}
-
-function getNearbyPlaceId(map: any, lat: number, lng: number, radius = 50): Promise<string | null> {
-    return new Promise((resolve) => {
-        const service = new window.google.maps.places.PlacesService(map);
-        service.nearbySearch(
-            {
-                location: { lat, lng },
-                radius,
-            },
-            (results: any, status: string) => {
-                if (status === 'OK' && results && results.length > 0) {
-                    resolve(results[0].place_id);
-                } else {
-                    resolve(null);
-                }
-            }
-        );
-    });
-}
+import { LatLng, PlaceDetails } from './types';
+import { useGoogleMaps } from './hooks/useGoogleMaps';
 
 export const MapComponent: React.FC = () => {
-    const mapRef = useRef<HTMLDivElement | null>(null);
-    const mapInstance = useRef<any>(null);
-    const { selectedCountries, selectedCities } = useCreateItineraryContext();
-
-    const fitMapToPoints = (points: Array<{ lat: number; lng: number }>, padding = 80, zoomIfSingle = 6) => {
-        if (!mapInstance.current || !window.google || points.length === 0) return;
-
-        if (points.length === 1) {
-            mapInstance.current.setCenter(points[0]);
-            mapInstance.current.setZoom(zoomIfSingle);
-        } else {
-            const bounds = new window.google.maps.LatLngBounds();
-            points.forEach(({ lat, lng }) => bounds.extend(new window.google.maps.LatLng(lat, lng)));
-            mapInstance.current.fitBounds(bounds, padding);
-        }
-    };
-
+    const { isReady, mapRef, mapInstance, fitMapToPoints, getNearbyPlaceId, getPlaceDetails, initMap } = useGoogleMaps(process.env.REACT_APP_GOOGLE_MAPS_API_KEY ?? '', process.env.REACT_APP_GOOGLE_MAPS_MAP_ID ?? '');
+    const { markersCache, selectedCountries, selectedCities, setMapInstance } = useCreateItineraryContext();
+    // Auto-zoom on cities or countries
     useEffect(() => {
-        if (!window.google || !mapInstance.current) return;
+        if (!isReady || !mapInstance.current) return;
 
-        // Prioritize cities if available
-        const cityPoints =
-            selectedCities?.map(c => (c.lat && c.lon ? { lat: c.lat, lng: c.lon } : null)).filter(Boolean) || [];
+        const cityPoints = selectedCities
+            ?.map(c => (c.lat && c.lon ? { lat: c.lat, lng: c.lon } : null))
+            .filter(Boolean) as LatLng[];
+
         if (cityPoints.length > 0) {
-            fitMapToPoints(cityPoints as { lat: number; lng: number }[], 60, 10);
+            fitMapToPoints(mapInstance.current, cityPoints, 60, 10);
             return;
         }
 
-        // Fall back to countries
-        const countryPoints =
-            selectedCountries?.map(c =>
+        const countryPoints = selectedCountries
+            ?.map(c =>
                 Array.isArray(c.latlng) && c.latlng.length === 2
                     ? { lat: c.latlng[0], lng: c.latlng[1] }
                     : null
-            ).filter(Boolean) || [];
+            )
+            .filter(Boolean) as LatLng[];
 
         if (countryPoints.length > 0) {
-            fitMapToPoints(countryPoints as { lat: number; lng: number }[], 100, 5);
+            fitMapToPoints(mapInstance.current, countryPoints, 100, 5);
         }
-    }, [selectedCountries, selectedCities]);
+    }, [isReady, selectedCountries, selectedCities, mapInstance, fitMapToPoints]);
 
     useEffect(() => {
-        const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
-        if (!mapRef.current || !apiKey) return;
+        initMap((map) => {
+            setMapInstance(map)
+            const infoWindow = new window.google.maps.InfoWindow();
+            map.addListener('click', async (e: google.maps.MapMouseEvent) => {
+                if (!e.latLng) return;
 
-        loadGoogleMapsScript(apiKey, () => {
-            if (!window.google || !mapRef.current) return;
+                const lat = e.latLng.lat();
+                const lng = e.latLng.lng();
+                const placeId = await getNearbyPlaceId(map, lat, lng);
 
-            if (!mapInstance.current) {
-                mapInstance.current = new window.google.maps.Map(mapRef.current, {
-                    center: { lat: 40.7128, lng: -74.006 },
-                    zoom: 4,
-                });
+                if (!placeId) {
+                    console.log('No place found at click location.');
+                    return;
+                }
 
-                window.google.maps.event.addListener(mapInstance.current, 'click', async (e: any) => {
-                    const lat = e.latLng.lat();
-                    const lng = e.latLng.lng();
-                    const placeId = await getNearbyPlaceId(mapInstance.current, lat, lng);
-                    if (placeId) {
-                        try {
-                            const place = await getPlaceDetails(mapInstance.current, placeId);
-                            console.log('Full Place Details:', place);
-                        } catch (err) {
-                            console.log('No details found for this place.', err);
-                        }
-                    } else {
-                        console.log('No places found near this location.');
+                if (markersCache.has(placeId)) {
+                    const cached = markersCache.get(placeId)!;
+                    infoWindow?.setContent(buildInfoWindowContent(cached.place));
+                    infoWindow.open({
+                        anchor: cached.marker,
+                        map,
+                        shouldFocus: true,
+                    });
+                    return;
+                }
+
+                try {
+                    const place = await getPlaceDetails(map, placeId);
+
+                    if (window?.google.maps?.marker?.AdvancedMarkerElement) {
+                        const marker = new window.google.maps.marker.AdvancedMarkerElement({
+                            position: e.latLng,
+                            map,
+                            title: place.name || 'No title',
+                        });
+
+                        markersCache.set(placeId, { place, marker });
+
+                        marker.addListener('click', () => {
+                            infoWindow?.setContent(buildInfoWindowContent(place));
+                            infoWindow?.open({
+                                anchor: marker,
+                                map,
+                                shouldFocus: true,
+                            });
+                        });
+
+                        // Open info window immediately on click
+                        infoWindow.setContent(buildInfoWindowContent(place));
+                        infoWindow.open({
+                            anchor: marker,
+                            map,
+                            shouldFocus: true,
+                        });
                     }
-                });
-            }
+                } catch (err) {
+                    console.warn('Error fetching place details:', err);
+                }
+            });
         });
-    }, []);
+
+        return () => {
+        };
+    }, [initMap, getNearbyPlaceId, getPlaceDetails, setMapInstance, markersCache]);
+
 
     return <div ref={mapRef} style={{ width: '100%', height: '500px' }} />;
 };
 
-export { getPlaceDetails, getNearbyPlaceId };
+function buildInfoWindowContent(place: PlaceDetails): string {
+    const websiteLink = place.website
+        ? `<a href="${place.website}" target="_blank" rel="noopener" style="color: #1976d2; text-decoration: none;">Website</a>`
+        : '';
+
+    return `
+    <div style="
+        font-family: Roboto, sans-serif;
+        max-width: 300px;
+        padding: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    ">
+        <h2 style="margin: 0 0 8px 0; font-size: 1.25em; color: #333;">${place.name}</h2>
+        <div style="margin-bottom: 6px; color: #555;">
+            ${place.formatted_address.split(', ').map(part => `<div>${part}</div>`).join('')}
+        </div>
+        ${place.international_phone_number
+            ? `<div style="margin-bottom: 6px; color: #555;">📞 ${place.international_phone_number}</div>`
+            : ''
+        }
+        ${websiteLink
+            ? `<div style="margin-bottom: 6px;">🔗 ${websiteLink}</div>`
+            : ''
+        }
+        ${place.rating
+            ? `<div style="color: #fbc02d;">⭐ ${place.rating} (${place.user_ratings_total ?? 0} reviews)</div>`
+            : ''
+        }
+    </div>
+    `;
+}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Autocomplete, TextField, CircularProgress, Typography, Box } from '@mui/material';
+import { Autocomplete, TextField, CircularProgress, Typography, Box, Paper } from '@mui/material';
 import { useCitiesByCountry } from '@app/hooks/useCitiesByCountry';
 import { useCreateItineraryContext } from '@app/modules/CreateItinerary/context/useCreateItineraryContext';
 import { City } from '@app/types';
@@ -14,9 +14,24 @@ export const CityFilters: React.FC = () => {
     };
 
     return (
-        <Box>
-            <Typography variant="h3">City Filters</Typography>
-
+        <Paper
+            elevation={3}
+            sx={{
+                p: 2,
+                borderRadius: 3,
+                boxShadow: 3,
+                bgcolor: 'background.paper',
+                width: { xs: '100%', sm: 500 },
+                maxWidth: '100%',
+                mb: 2,
+                ml: { xs: 0, sm: 3 },
+            }}
+        >
+            <Box mb={2}>
+                <Typography component="h2" sx={{ fontWeight: 600, fontSize: 20, mb: 1 }}>
+                    City Filters
+                </Typography>
+            </Box>
             <Autocomplete
                 multiple
                 options={cities}
@@ -42,14 +57,13 @@ export const CityFilters: React.FC = () => {
                         }}
                     />
                 )}
-                sx={{ width: 300 }}
+                sx={{ width: '100%' }}
             />
-
             {error && (
                 <Typography color="error" variant="body2" sx={{ mt: 1 }}>
                     Failed to load cities: {error}
                 </Typography>
             )}
-        </Box>
+        </Paper>
     );
 };
