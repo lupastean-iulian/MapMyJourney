@@ -17,18 +17,22 @@ export const CityFilters: React.FC = () => {
         <Paper
             elevation={3}
             sx={{
-                p: 2,
+                p: { xs: '16px 12px', sm: '20px 16px' },
                 borderRadius: 3,
                 boxShadow: 3,
                 bgcolor: 'background.paper',
-                width: { xs: '100%', sm: 500 },
+                width: '100%',
                 maxWidth: '100%',
-                mb: 2,
-                ml: { xs: 0, sm: 3 },
+                boxSizing: 'border-box',
             }}
         >
-            <Box mb={2}>
-                <Typography component="h2" sx={{ fontWeight: 600, fontSize: 20, mb: 1 }}>
+            <Box mb={{ xs: 2.5, sm: 3 }} >
+                <Typography variant='h6' sx={{
+                    fontSize: {
+                        xs: '16px', // Smaller on extra small screens
+                        sm: '20px',
+                    },
+                }}>
                     City Filters
                 </Typography>
             </Box>
@@ -43,17 +47,35 @@ export const CityFilters: React.FC = () => {
                     <TextField
                         {...params}
                         label="Select Cities"
-                        placeholder="Start typing a city name..."
+                        placeholder="Select one or more cities"
                         variant="outlined"
                         fullWidth
                         InputProps={{
                             ...params.InputProps,
+                            sx: {
+                                fontSize: {
+                                    xs: '14px',
+                                    sm: '16px',
+                                },
+                                height: {
+                                    xs: '44px',
+                                    sm: '48px',
+                                },
+                            },
                             endAdornment: (
                                 <>
                                     {loading ? <CircularProgress color="inherit" size={20} /> : null}
                                     {params.InputProps.endAdornment}
                                 </>
                             )
+                        }}
+                        InputLabelProps={{
+                            sx: {
+                                fontSize: {
+                                    xs: '14px',
+                                    sm: '16px',
+                                },
+                            },
                         }}
                     />
                 )}

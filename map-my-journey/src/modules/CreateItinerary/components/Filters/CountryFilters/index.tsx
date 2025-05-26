@@ -15,18 +15,23 @@ export const CountryFilters: React.FC = () => {
         <Paper
             elevation={3}
             sx={{
-                p: 2,
+                p: { xs: '16px 12px', sm: '20px 16px' },
+
                 borderRadius: 3,
                 boxShadow: 3,
                 bgcolor: 'background.paper',
-                width: { xs: '100%', sm: 500 },
+                width: '100%',
                 maxWidth: '100%',
-                mb: 2,
-                ml: { xs: 0, sm: 3 },
+                boxSizing: 'border-box',
             }}
         >
-            <Box mb={2}>
-                <Typography component="h2" sx={{ fontWeight: 600, fontSize: 20, mb: 1 }}>
+            <Box mb={{ xs: 2.5, sm: 3 }} >
+                <Typography variant='h6' sx={{
+                    fontSize: {
+                        xs: '16px', // Smaller on extra small screens
+                        sm: '20px',
+                    },
+                }}>
                     Country Filters
                 </Typography>
             </Box>
@@ -52,17 +57,35 @@ export const CountryFilters: React.FC = () => {
                     <TextField
                         {...params}
                         label="Select Countries"
-                        placeholder="Start typing a country name..."
+                        placeholder="Select one or more countries"
                         variant="outlined"
                         fullWidth
                         InputProps={{
                             ...params.InputProps,
+                            sx: {
+                                fontSize: {
+                                    xs: '14px',
+                                    sm: '16px',
+                                },
+                                height: {
+                                    xs: '44px',
+                                    sm: '48px',
+                                },
+                            },
                             endAdornment: (
                                 <>
                                     {!allCountries ? <CircularProgress color="inherit" size={20} /> : null}
                                     {params.InputProps.endAdornment}
                                 </>
                             )
+                        }}
+                        InputLabelProps={{
+                            sx: {
+                                fontSize: {
+                                    xs: '14px',
+                                    sm: '16px',
+                                },
+                            },
                         }}
                     />
                 )}

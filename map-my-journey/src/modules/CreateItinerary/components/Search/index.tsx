@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Autocomplete, TextField, Box, Paper } from '@mui/material';
+import { Autocomplete, TextField, Box, Paper, Typography } from '@mui/material';
 import { useCreateItineraryContext } from '../../context/useCreateItineraryContext';
 import { useGoogleMaps } from '../Map/hooks/useGoogleMaps';
 
@@ -54,19 +54,31 @@ export const SearchComponent: React.FC = () => {
         <Paper
             elevation={3}
             sx={{
-                p: 2,
+                p: { xs: '16px 12px', sm: '20px 16px' },
                 borderRadius: 3,
                 boxShadow: 3,
                 bgcolor: 'background.paper',
-                width: { xs: '100%', sm: '70%', md: '80%' },
+                width: '100%',
+                height: {
+                    xs: 'auto', // Auto height on extra small screens
+                },
                 maxWidth: '100%',
-                mx: 'auto',
-                ml: { xs: 0, sm: 3 },
-            }}
+                boxSizing: 'border-box',
+            }
+            }
         >
-            <Box mb={2} >
-                <Box component="h2" sx={{ fontWeight: 600, fontSize: 20, mb: 1 }}>
-                    Search Location
+            <Box mb={{ xs: 2.5, sm: 3 }} >
+                <Box >
+                    <Typography
+                        variant='h6'
+                        sx={{
+                            fontSize: {
+                                xs: '16px', // Smaller on extra small screens
+                                sm: '20px',
+                            },
+                        }}>
+                        Search Location
+                    </Typography>
                 </Box>
             </Box>
             <Autocomplete
@@ -76,9 +88,30 @@ export const SearchComponent: React.FC = () => {
                 renderInput={(params) => (
                     <TextField
                         {...params}
-                        label="Search a city or region"
+                        label="Search a country, city or location"
                         variant="outlined"
                         fullWidth
+                        InputProps={{
+                            ...params.InputProps,
+                            sx: {
+                                fontSize: {
+                                    xs: '14px',
+                                    sm: '16px',
+                                },
+                                height: {
+                                    xs: '44px',
+                                    sm: '48px',
+                                },
+                            },
+                        }}
+                        InputLabelProps={{
+                            sx: {
+                                fontSize: {
+                                    xs: '14px',
+                                    sm: '16px',
+                                },
+                            },
+                        }}
                     />
                 )}
                 inputValue={inputValue}
@@ -90,6 +123,6 @@ export const SearchComponent: React.FC = () => {
                     width: '100%',
                 }}
             />
-        </Paper>
+        </Paper >
     );
 };
