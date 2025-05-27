@@ -10,11 +10,10 @@ export type GooglePlaceOption = {
 }
 
 export const SearchComponent: React.FC = () => {
-    const { allCountries, setSelectedCountries, mapInstance } = useCreateItineraryContext();
+    const { allCountries, setSelectedCities, setSelectedCountries, mapInstance } = useCreateItineraryContext();
     const { fitMapToPoints, getPlacePredictions, getPlaceDetails } = useGoogleMaps(process.env.REACT_APP_GOOGLE_MAPS_API_KEY ?? '', process.env.REACT_APP_GOOGLE_MAPS_MAP_ID ?? '')
     const [inputValue, setInputValue] = useState('');
     const [options, setOptions] = useState<GooglePlaceOption[]>([]);
-    const placesService = useRef<google.maps.places.PlacesService | null>(null);
     useEffect(() => {
         if (!inputValue) {
             setOptions([]);
@@ -30,8 +29,6 @@ export const SearchComponent: React.FC = () => {
     const handlePlaceSelect = (
         event: React.SyntheticEvent<Element, Event>,
         value: string | GooglePlaceOption | null,
-        reason: any,
-        details?: any
     ) => {
         if (!value || !mapInstance || typeof value === 'string') return;
         getPlaceDetails(mapInstance, value.placeId)
@@ -41,7 +38,9 @@ export const SearchComponent: React.FC = () => {
                         lat: place.geometry.location.lat(),
                         lng: place.geometry.location.lng()
                     }], 60, 14);
-                    setSelectedCountries(allCountries.filter(c => String(c.name) === options[0].country));
+                    const country = allCountries.find(c => c.name.common === value.country);
+                    setSelectedCountries(country ? [country] : []);
+                    setSelectedCities([])
                 }
             })
             .catch((error) => {

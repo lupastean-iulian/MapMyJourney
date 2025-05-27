@@ -6,6 +6,8 @@ import { MapComponent } from "../components/Map/MapComponent";
 import { SearchComponent } from "../components/Search";
 import { CityFilters } from "../components/Filters/CityFilters";
 import { CountryFilters } from "../components/Filters/CountryFilters";
+import { PlaceInfoDialog } from "../components/PlaceInfoDialog";
+import { SelectedLocations } from "../components/SelectedLocations";
 
 export const CreateItinerary: React.FC = () => {
     return (
@@ -48,8 +50,8 @@ export const CreateItinerary: React.FC = () => {
                         </Grid>
                         <Grid data-testId='selectedLocations' size={{
                             xs: 12, md: 6
-                        }} bgcolor='green' alignItems='center' justifyContent='center' display='flex'>
-                            Selected Locations (40%)
+                        }}>
+                            <SelectedLocations />
                         </Grid>
                     </Grid>
                 </Grid>

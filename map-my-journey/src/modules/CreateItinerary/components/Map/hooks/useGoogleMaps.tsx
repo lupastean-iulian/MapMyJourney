@@ -58,6 +58,7 @@ export const useGoogleMaps = (apiKey: string, mapId: string) => {
                 center: { lat: 40.7128, lng: -74.006 },
                 zoom: 4,
                 mapId,
+
             });
             setIsReady(true);
             if (onMapReady && mapInstance.current) onMapReady(mapInstance.current);
@@ -93,9 +94,15 @@ export const useGoogleMaps = (apiKey: string, mapId: string) => {
                     {
                         location: new window.google.maps.LatLng(lat, lng),
                         radius,
+                        type: 'point_of_interest',
+                        rankBy: google.maps.places.RankBy.PROMINENCE
                     },
                     (results, status) => {
-                        if (status === google.maps.places.PlacesServiceStatus.OK && results?.length && results[0].place_id) {
+                        if (
+                            status === google.maps.places.PlacesServiceStatus.OK &&
+                            results?.length &&
+                            results[0].place_id
+                        ) {
                             resolve(results[0].place_id);
                         } else {
                             resolve(null);
